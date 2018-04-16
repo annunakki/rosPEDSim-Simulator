@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# Set the velocity mean and variance, forceFactorDesired, forceFactorSocial, A, B, r.
+echo "1.25 0.08 1 2.1 5 0.5 0.7" > ../config/pedvel 
+roslaunch pedsim_simulator Altorfer_f1.launch
+# roslaunch pedsim_simulator my.launch omega:=0.1 init_phase:=3.14 robot_init_y:=3.5 ped_num:=11 record:="false" rviz:="false"

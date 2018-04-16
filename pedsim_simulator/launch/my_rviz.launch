@@ -1,0 +1,5 @@
+<launch>
+  <param name="robot_description" command="$(find xacro)/xacro.py '$(find pr2_description)/robots/pr2_no_arms.urdf.xacro'" />
+
+  <node pkg="rviz" type="rviz" name="rviz" args="-d $(find pedsim_simulator)/rviz/social_contexts_activities.rviz"/>
+</launch>

@@ -1,0 +1,13 @@
+<launch>
+  <arg name="base"       value="$(optenv TURTLEBOT_BASE create)"/>  <!-- create, kobuki, rhoomba -->
+  <arg name="stacks"     value="$(optenv TURTLEBOT_STACKS circles)"/>  <!-- circles, hexagons -->
+  <arg name="3d_sensor"  value="$(optenv TURTLEBOT_3D_SENSOR kinect)"/>  <!-- kinect, asus_xtion_pro -->
+  
+  <include file="$(find turtlebot_bringup)/launch/includes/robot.launch.xml">
+    <arg name="base" value="$(arg base)" />
+    <arg name="stacks" value="$(arg stacks)" />
+    <arg name="3d_sensor" value="$(arg 3d_sensor)" />
+  </include>
+
+  <node pkg="rviz" type="rviz" name="rviz" args="-d $(find pedsim_simulator)/rviz/social_contexts_activities.rviz"/>
+</launch>

@@ -1,0 +1,55 @@
+<launch>
+  <arg name="teleop" default="true"/>
+  <arg name="record" default="false"/>
+  <arg name="omega" default="0.4"/>
+  <arg name="init_phase" default="0"/>
+  <arg name="robot_init_y" default="0.5"/>
+  <arg name="bag_name" default="default.bag"/>
+  <arg name="ped_num" default=""/>
+  <arg name="rviz" default="true"/>
+  
+  
+
+  <!-- params -->
+  <param name="/pedsim/scene_file" value="$(find pedsim_simulator)scenarios/oval$(arg ped_num).xml" type="string"/>
+  <param name="/use_sim_time" value="false"/>
+
+
+  <node pkg="rviz" type="rviz" name="rviz" args="-d $(find pedsim_simulator)/rviz/social_contexts_activities.rviz" if="$(arg rviz)"/>
+
+
+  <!-- main simulator node -->
+  <node name="pedsim_simulator" pkg="pedsim_simulator" type="pedsim_simulator" output="screen">
+      <!-- 0 - headless, 1 - minimal, 2 - full -->
+      <param name="visual_mode" value="1" type="int"/>
+      <param name="scene_file" value="$(find pedsim_simulator)scenarios/oval$(arg ped_num).xml" type="string"/>
+      <param name="default_queue_size" value="10"/>
+      <param name="max_robot_speed" value="1.5" type="double"/>
+      <param name="robot_mode" value="1" type="int"/>
+      <param name="enable_groups" value="false" type="bool"/>
+  </node>
+  <node name="traj_recorder" pkg="rosbag" type="record" args="-O /home/zchenpds/bag/pedsim/bag/$(arg bag_name) /pedsim/agents_markers" if="$(arg record)"/>
+
+
+  <group ns="/pedbot/control">
+    <!-- robot driving controller -->
+    <node name="driving_controller" type="simulate_diff_drive_robot" pkg="pedsim_simulator" output="screen">
+        <param name="pose_initial_x" value="6.6"/>
+        <param name="pose_initial_y" value="$(arg robot_init_y)"/>
+        <param name="pose_initial_theta" value="1.570796"/>
+    </node>
+    <node pkg="tf" type="static_transform_publisher" name="link_broadcaster1" args="0 0 0 0 0 0 1 base_footprint base_link 100" />
+    <node pkg="tf" type="static_transform_publisher" name="link_broadcaster2" args="-0.043 0 0.7 0 0 0 1 base_footprint torso_lift_link 100" />
+    <node pkg="tf" type="static_transform_publisher" name="link_broadcaster3" args="-.05 0 0.38 0 0 0 1 torso_lift_link head_pan_link 100" />
+    <node pkg="tf" type="static_transform_publisher" name="link_broadcaster4" args="0.07 0 0 0 0 0 1 head_pan_link head_tilt_link 100" />
+    <node pkg="tf" type="static_transform_publisher" name="link_broadcaster5" args="1 0 0 0 0 0 1 base_footprint imu_link 100" />
+    <!-- RQT robot steering -->
+    <node pkg="turtlebot_test" name="rqt_robot_steering" type="turtlebot_test" if="$(arg teleop)">
+        <param name="omega" value="$(arg omega)" type="double"/>
+        <param name="init_phase" value="$(arg init_phase)" type="double"/>
+        <param name="mode" value="1" type="int"/>
+        <remap from="/cmd_vel" to="/pedbot/control/cmd_vel"/>
+    </node>
+  </group>
+
+</launch>
